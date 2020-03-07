@@ -23,3 +23,11 @@ Library allows to:
 * Multiple find functions.
    
   
+## Basic functions
+
+* **areSimilar(String1, String2)**: Returns if the two strings are similar and the ratio of similarity. Does not take into account capitals,  spaces, accents or other special characters.
+* **areSimilarAbsolute(String1, String2)**: Returns if the two strings are similar and the ratio of similarity for the strings as they are.
+* **compare(String1, String2)**: Compares the given strings and returns the string with the indexes of the characters that are different.<br>
+i.e: compare('Hello World', Hello Earth') --> ['Hello World',[6,7,8,9,10], 'Hello Earth', [6,7,8,9,10] (Hello *World*, Hello *Earth*).<br>
+* **compareListToString(StringList, String1)**: Compares multiple Strings to a single string.<br>
+i.e: compareListToString(['Hellow', 'Hallo', 'Helo'], 'Hello') --> [['Hellow', [5], 'Hello', []], ['Hallo', [1], 'Hello', [1]], ['Helo', [], 'Hello', [3]]].
