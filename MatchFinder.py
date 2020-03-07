@@ -102,6 +102,24 @@ def areSimilar(in_str1, in_str2):
     else:
         return False, simRatio
 
+# =============================================================================
+# Function returns if two string are similar and returns the similarity ratio
+# 
+# No line modification, absolute comparison  
+# =============================================================================
+def areSimilarAbsolute(in_str1, in_str2):
+    global similarityRatio
+    if not isinstance(in_str1, str) or not isinstance(in_str2, str):
+        raise TypeError('Input arguments must be (\'str\', \'str\') not' 
+                        + '(\'%s\', \'%s\')'%(type(in_str1),type(in_str2)))
+    #Diference ratio
+    simRatio = difflib.SequenceMatcher(None, in_str1, in_str2).ratio()       
+    #If the similarity is enought return true else false, and return the ratio 
+    if simRatio >= similarityRatio:
+        return True, simRatio
+    else:
+        return False, simRatio
+    
 #Sets the variables value
 def setFixCompResult(in_bool):
     global fixCompResult
@@ -192,7 +210,7 @@ def compare(in_str1, in_str2):
     
     for match in matches:
         if match[0] == '-':
-            str_Idx_2.append(len(str_Result_1))
+            str_Idx_1.append(len(str_Result_1))
             str_Result_1.append(match[1:])
         elif match[0] == '+':
             str_Idx_2.append(len(str_Result_2))
@@ -202,6 +220,7 @@ def compare(in_str1, in_str2):
         else:#saving results of comparison
             str_Result_1.append(match)
             str_Result_2.append(match)            
+        
         if fixCompResult:
             str_Idx_1 = fixComparisonResultIdx(in_str1, str_Idx_1)
             str_Idx_2 = fixComparisonResultIdx(in_str2, str_Idx_2)
@@ -222,4 +241,3 @@ def compareListToString(in_list, in_str):
     for string in in_list:
         compared.append(compare(string, in_str))
     return compared
-
