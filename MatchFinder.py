@@ -23,7 +23,8 @@ similarityRatio = 0.7
 fixCompResult = True
 #Variable sets the minimum number of letters to determines string for fixing
 minLettersDifferent = 2
-
+#Variable defines the maximum number of lines a string can be found in
+maxLines = 4
 
 
 # =============================================================================
@@ -241,3 +242,128 @@ def compareListToString(in_list, in_str):
     for string in in_list:
         compared.append(compare(string, in_str))
     return compared
+
+# =============================================================================
+# Function returns index of lines that match given regular expresion
+# =============================================================================
+def getIdxStringByRegex(regex, in_target):
+    found = []
+    if isinstance(in_target, str):
+        in_target = [in_target]
+    elif not(isinstance(in_target, list) and 
+             all(isinstance(element, str) for element in in_target)):
+        raise TypeError('Must be \'list\'or \'str\' not \'%s\''%type(in_target))    
+    
+    found = [i for i in range(len(in_target)) if re.search(regex,in_target[i])]
+    return found
+
+
+# =============================================================================
+# Finds Best match contained in a string
+# =============================================================================
+def getBestMatchInStringSimple(goal, target):        
+    bestMatch = None
+    bestRatio = 0.0               
+    #Split words by spaces to group them later
+    subStrings = target.split(' ')   
+
+    # Joining points that may be afte a space
+    for x in reversed(range(1, len(subStrings))):
+        if re.search('[\.,]',subStrings[x]) and re.search('[a-zA-z]', subStrings[x-1][-1]):
+            subStrings[x-1] = subStrings[x-1] + ' ' + subStrings[x]
+            subStrings = subStrings[:x] + subStrings[x+1:]        
+    
+    #Crea agrupaciones de j = (1,2,...,len(lineWords)) h  
+    for j in range(1, len(subStrings)+1):
+        for st in range(len(subStrings)):
+            end = st + j            
+            if end < len(subStrings)+1:                    
+                partial = ' '.join(subStrings[st:end])
+                sim, r = areSimilar(partial, goal)
+                if sim and r > bestRatio:
+                    if r == 1.0:
+                        return (partial, r)
+                    else:
+                        bestMatch = partial
+                        bestRatio = r
+            else:                    
+                break              
+    return (bestMatch, bestRatio)
+
+# =============================================================================
+# Sets maxLines value
+# =============================================================================
+def setMaxLinesLookup(maximum):
+    global maxLines 
+    maxLines = maximum
+    
+# =============================================================================
+# Finds the best match, may be in line and contained between multiple lines, 
+# can choose the number of line
+# =============================================================================
+def getBestMatchInString(goal, target):
+    global maxLines
+    
+    bestMatch = None
+    bestRatio = 0.0    
+    positions = []
+    extendedLines = []
+    bestPosicion = []    
+    
+    for i in range(len(target)):
+        if target[i] == '':
+            continue
+        line = target[i]
+        (bm, r) = getBestMatchInStringSimple(goal, line)
+        if r == 1 and bm == goal:                
+            return (bm, r, [i])
+        elif r > bestRatio:
+            bestRatio = r
+            bestMatch = bm             
+            bestPosicion = [i]
+    
+    for i in range(len(target)):                        
+        #Generate Extended lines
+        if target[i] == '':
+            continue
+        line = target[i]
+        positions.append(i)
+        extendedLines.append(line)        
+        for a in range(1,maxLines):            
+            if len(target) > i+a:
+                if target[i+a] == '':
+                    break
+                line  += ' ' + target[i+a]
+                extendedLines.append(line)
+                positions.append(list(range(i, i+a+1)))    
+        #Calculate Similarities
+    for j in range(len(extendedLines)):
+        line = extendedLines[j]
+        (bm, r) = getBestMatchInStringSimple(goal, line)
+        if r == 1 and bm == goal:         
+            return (bm, r, positions[j])
+        elif r > bestRatio:
+            bestRatio = r
+            bestMatch = bm             
+            bestPosicion = positions[j]                               
+    return (bestMatch, bestRatio, bestPosicion)
+
+
+# =============================================================================
+# Finds the best maches of the given string
+# =============================================================================
+def getBestMatchesInString(goal, target):
+    target = list(target)
+    bestMatches = []      
+    while(True):   
+        bestMatch = getBestMatchInString(goal, target)
+        if bestMatch[0] == None:
+            break    
+        else:
+#            print('BM: \"%s\" - %s\n%s-%s\n'%(bestMatch[0], goal, str(areSimilar(bestMatch[0], goal)), str(bestMatch[2])))
+            bestMatches.append(bestMatch)
+            linesFound = bestMatch[2]  
+            for i in linesFound:
+                target[i] = ''            
+    return bestMatches
+
