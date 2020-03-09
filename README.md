@@ -31,3 +31,6 @@ Library allows to:
 i.e: compare('Hello World', Hello Earth') --> ['Hello World',[6,7,8,9,10], 'Hello Earth', [6,7,8,9,10] (Hello *World*, Hello *Earth*).<br>
 * **compareListToString(StringList, String1)**: Compares multiple Strings to a single string.<br>
 i.e: compareListToString(['Hellow', 'Hallo', 'Helo'], 'Hello') --> [['Hellow', [5], 'Hello', []], ['Hallo', [1], 'Hello', [1]], ['Helo', [], 'Hello', [3]]].
+* **getBestMatchInString(String1, StringList)**: Returns the best match for String1, it may be in between another string of StringList
+* **getBestMatchesInString(String1, StringList)**: Returns the best matches for String1, they may be in between another string of StringList
+
